@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منشئ الفواتير السريع</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- مكتبات تحويل وتصدير الفاتورة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- لوحة التحكم وإدخال البيانات -->
+    <aside class="control-panel">
+      <header class="panel-header">
+        <h1>منشئ الفواتير</h1>
+        <p>أنشئ فواتير عملك وأدر كتالوجك بأسلوب هادئ</p>
+      </header>
+
+      <!-- بيانات المتجر والعميل -->
+      <section class="card">
+        <h2>بيانات الفاتورة</h2>
+        <div class="form-group">
+          <label for="companyName">اسم المتجر / الشركة</label>
+          <input type="text" id="companyName" placeholder="اكتب اسم متجرك أو شركتك">
+        </div>
+        <div class="form-group">
+          <label for="clientName">اسم العميل</label>
+          <input type="text" id="clientName" placeholder="اكتب اسم العميل">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="invoiceNumber">رقم الفاتورة</label>
+            <input type="text" id="invoiceNumber" placeholder="INV-001">
+          </div>
+          <div class="form-group">
+            <label for="invoiceDate">التاريخ</label>
+            <input type="date" id="invoiceDate">
+          </div>
+        </div>
+      </section>
+
+      <!-- إضافة منتج للكتالوج -->
+      <section class="card">
+        <h2>إضافة منتج جديد للكتالوج</h2>
+        <form id="newProductForm">
+          <div class="form-group">
+            <label for="prodName">اسم المنتج</label>
+            <input type="text" id="prodName" required placeholder="اسم المنتج">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prodPrice">السعر (ر.س)</label>
+              <input type="number" id="prodPrice" required min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label for="prodImage">رابط الصورة (اختياري)</label>
+              <input type="url" id="prodImage" placeholder="https://...">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-secondary">حفظ في الكتالوج</button>
+        </form>
+      </section>
+
+      <!-- كتالوج المنتجات المحفوظة -->
+      <section class="card">
+        <h2>اختر من الكتالوج لإضافته للفاتورة</h2>
+        <div id="catalogList" class="catalog-grid">
+          <!-- تضاف كروت المنتجات هنا تلقائياً عبر JavaScript -->
+        </div>
+      </section>
+    </aside>
+
+    <!-- منطقة المعاينة وتصدير الفاتورة -->
+    <main class="preview-area">
+      <div class="actions-bar">
+        <button id="downloadPdfBtn" class="btn btn-primary">تحميل كـ PDF</button>
+        <button id="downloadImgBtn" class="btn btn-outline">تحميل كصورة</button>
+      </div>
+
+      <!-- ورقة الفاتورة المصممة للطباعة والتصدير -->
+      <div id="invoiceSheet" class="invoice-sheet">
+        <div class="invoice-header">
+          <div>
+            <h2 id="viewCompany">اسم المتجر / الشركة</h2>
+            <p class="invoice-sub">فاتورة مبيعات ضريبية مبسطة</p>
+          </div>
+          <div class="invoice-meta">
+            <p><strong>رقم الفاتورة:</strong> <span id="viewInvoiceNumber">-</span></p>
+            <p><strong>التاريخ:</strong> <span id="viewDate">-</span></p>
+          </div>
+        </div>
+
+        <div class="invoice-divider"></div>
+
+        <div class="invoice-client-info">
+          <p><strong>فاتورة إلى:</strong></p>
+          <h3 id="viewClient">-</h3>
+        </div>
+
+        <!-- جدول المنتجات في الفاتورة -->
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <th>المنتج</th>
+              <th>السعر الفردي</th>
+              <th>الكمية</th>
+              <th>الإجمالي</th>
+              <th class="no-print">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="invoiceItems">
+            <!-- تضاف صفوف الفاتورة هنا ديناميكياً -->
+          </tbody>
+        </table>
+
+        <!-- ملخص الحسابات -->
+        <div class="invoice-summary">
+          <div class="summary-row">
+            <span>المجموع الفرعي:</span>
+            <span id="subtotal">0.00 ر.س</span>
+          </div>
+          <div class="summary-row">
+            <span>ضريبة القيمة المضافة (15%):</span>
+            <span id="tax">0.00 ر.س</span>
+          </div>
+          <div class="summary-row total-row">
+            <span>الإجمالي النهائي:</span>
+            <span id="grandTotal">0.00 ر.س</span>
+          </div>
+        </div>
+
+        <div class="invoice-footer">
+          <p>شكراً لتعاملكم معنا!</p>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
